@@ -1,47 +1,39 @@
-/* 再生ボタンのスタイル */
+/* モバイルの横幅調整とカードの装飾 */
+body {
+    background-color: #f8f9fa;
+    font-family: sans-serif;
+}
+
+/* 再生ボタンのデザイン */
 .btn-play {
     background: none;
     border: none;
     padding: 0;
-    color: #24d366; /* 画像に近い鮮やかな緑 */
-    font-size: 2.5rem; /* 大きな三角形 */
+    color: #24d366;
+    font-size: 2.5rem;
     line-height: 1;
-    transition: transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
 }
 
-.btn-play:active {
-    transform: scale(0.9);
+.btn-play:hover {
+    opacity: 0.7;
 }
 
-/* 時間表示の幅を固定してガタつきを防ぐ */
+/* 時間表示 */
 .time-display {
     min-width: 85px;
-    font-family: monospace;
+    font-variant-numeric: tabular-nums; /* 数字の幅を一定にする */
 }
 
-/* シークバーの背景色 */
+/* プログレスバー（シークバー） */
 .progress {
-    background-color: #e9ecef;
-    cursor: pointer;
+    background-color: #eee;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 .progress-bar {
-    background-color: #adb5bd; /* 進行状況の色 */
-}
-
-/* ダウンロードボタンを正方形に近くする */
-.btn-dl {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border-color: #dee2e6;
-    color: #495057;
-}
-
-.btn-dl:hover {
-    background-color: #f8f9fa;
-    color: #212529;
+    transition: width 0.1s linear; /* バーの動きを滑らかに */
 }
