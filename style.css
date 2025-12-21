@@ -1,39 +1,29 @@
-/* モバイルの横幅調整とカードの装飾 */
-body {
-    background-color: #f8f9fa;
-    font-family: sans-serif;
-}
+body { background-color: #f0f2f5; }
 
-/* 再生ボタンのデザイン */
 .btn-play {
-    background: none;
-    border: none;
-    padding: 0;
-    color: #24d366;
-    font-size: 2.5rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    transition: opacity 0.2s;
+    background: none; border: none; padding: 0;
+    color: #24d366; font-size: 2.5rem;
+    display: flex; align-items: center;
 }
 
-.btn-play:hover {
-    opacity: 0.7;
-}
-
-/* 時間表示 */
 .time-display {
-    min-width: 85px;
-    font-variant-numeric: tabular-nums; /* 数字の幅を一定にする */
+    min-width: 75px; font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
 }
 
-/* プログレスバー（シークバー） */
-.progress {
-    background-color: #eee;
-    border-radius: 6px;
-    overflow: hidden;
+/* シークバーの見た目調整 */
+.js-progress-container {
+    display: flex; align-items: center; cursor: pointer;
+}
+
+.progress-inner {
+    width: 100%; height: 6px; /* 実際のバーの太さ */
+    background-color: #eee; border-radius: 3px;
+    overflow: hidden; position: relative;
 }
 
 .progress-bar {
-    transition: width 0.1s linear; /* バーの動きを滑らかに */
+    background-color: #adb5bd; height: 100%;
+    /* 再生中は滑らかに動かし、スライド操作時はJSでtransitionを消します */
+    transition: width 0.1s linear; 
 }
