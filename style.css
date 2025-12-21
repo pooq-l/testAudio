@@ -1,0 +1,47 @@
+/* 再生ボタンのスタイル */
+.btn-play {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #24d366; /* 画像に近い鮮やかな緑 */
+    font-size: 2.5rem; /* 大きな三角形 */
+    line-height: 1;
+    transition: transform 0.1s ease;
+}
+
+.btn-play:active {
+    transform: scale(0.9);
+}
+
+/* 時間表示の幅を固定してガタつきを防ぐ */
+.time-display {
+    min-width: 85px;
+    font-family: monospace;
+}
+
+/* シークバーの背景色 */
+.progress {
+    background-color: #e9ecef;
+    cursor: pointer;
+}
+
+.progress-bar {
+    background-color: #adb5bd; /* 進行状況の色 */
+}
+
+/* ダウンロードボタンを正方形に近くする */
+.btn-dl {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.btn-dl:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
