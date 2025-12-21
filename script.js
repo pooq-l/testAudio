@@ -6,12 +6,11 @@ document.querySelectorAll('.audio-player').forEach(player => {
     const progressBar = player.querySelector('.js-progress-bar');
     const progressContainer = player.querySelector('.js-progress-container');
 
-    // 再生・一時停止の切り替え
+    // 再生・一時停止
     playBtn.addEventListener('click', () => {
-        // 他の全ての音声を停止したい場合はここ（任意）
-        // document.querySelectorAll('audio').forEach(a => { if(a !== audio) a.pause(); });
-
         if (audio.paused) {
+            // 他のすべての曲を止める
+            stopAllOtherAudio(audio);
             audio.play();
             playIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
         } else {
@@ -20,32 +19,53 @@ document.querySelectorAll('.audio-player').forEach(player => {
         }
     });
 
-    // 時間の更新（再生中ずっと動く）
+    // 時間とシークバーの更新
     audio.addEventListener('timeupdate', () => {
         const current = formatTime(audio.currentTime);
         const duration = formatTime(audio.duration || 0);
         timeDisplay.innerText = `${current} / ${duration}`;
         
-        // プログレスバーの更新
         const percent = (audio.currentTime / audio.duration) * 100;
         progressBar.style.width = `${percent}%`;
     });
 
-    // シークバーをクリックして再生位置を変える
+    // シークバーのクリック操作
     progressContainer.addEventListener('click', (e) => {
-        const width = progressContainer.clientWidth;
-        const clickX = e.offsetX;
+        const rect = progressContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left; // コンテナ内でのクリック位置
+        const width = rect.width;
         const duration = audio.duration;
-        audio.currentTime = (clickX / width) * duration;
+        
+        if (duration) {
+            audio.currentTime = (clickX / width) * duration;
+        }
     });
 
-    // 読み込み完了時に時間を表示
+    // メタデータ読み込み完了時
     audio.addEventListener('loadedmetadata', () => {
         timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
     });
+
+    // 曲が最後まで再生されたらアイコンを戻す
+    audio.addEventListener('ended', () => {
+        playIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+        progressBar.style.width = '0%';
+    });
 });
 
-// 秒を「0:00」形式に変換する関数
+// 自分以外の音声をすべて停止し、アイコンを再生マークに戻す関数
+function stopAllOtherAudio(currentAudio) {
+    document.querySelectorAll('.audio-player').forEach(otherPlayer => {
+        const otherAudio = otherPlayer.querySelector('.js-audio');
+        const otherIcon = otherPlayer.querySelector('.js-play-btn i');
+        
+        if (otherAudio !== currentAudio) {
+            otherAudio.pause();
+            otherIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+        }
+    });
+}
+
 function formatTime(seconds) {
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
