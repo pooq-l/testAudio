@@ -6,10 +6,11 @@ document.querySelectorAll('.audio-player').forEach(player => {
     const progressBar = player.querySelector('.js-progress-bar');
     const progressContainer = player.querySelector('.js-progress-container');
 
+    let isDragging = false;
+
     // 再生・一時停止
     playBtn.addEventListener('click', () => {
         if (audio.paused) {
-            // 他のすべての曲を止める
             stopAllOtherAudio(audio);
             audio.play();
             playIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
@@ -19,49 +20,78 @@ document.querySelectorAll('.audio-player').forEach(player => {
         }
     });
 
-    // 時間とシークバーの更新
+    // 再生中の更新
     audio.addEventListener('timeupdate', () => {
-        const current = formatTime(audio.currentTime);
-        const duration = formatTime(audio.duration || 0);
-        timeDisplay.innerText = `${current} / ${duration}`;
-        
-        const percent = (audio.currentTime / audio.duration) * 100;
-        progressBar.style.width = `${percent}%`;
-    });
-
-    // シークバーのクリック操作
-    progressContainer.addEventListener('click', (e) => {
-        const rect = progressContainer.getBoundingClientRect();
-        const clickX = e.clientX - rect.left; // コンテナ内でのクリック位置
-        const width = rect.width;
-        const duration = audio.duration;
-        
-        if (duration) {
-            audio.currentTime = (clickX / width) * duration;
+        if (!isDragging) {
+            updateUI();
         }
     });
 
-    // メタデータ読み込み完了時
-    audio.addEventListener('loadedmetadata', () => {
-        timeDisplay.innerText = `0:00 / ${formatTime(audio.duration)}`;
+    // ★ 再生終了時のリセット処理 ★
+    audio.addEventListener('ended', () => {
+        audio.currentTime = 0; // 時間を最初に戻す
+        playIcon.classList.replace('bi-pause-fill', 'bi-play-fill'); // アイコンを再生に戻す
+        updateUI(); // バーと時間を0に戻す
     });
 
-    // 曲が最後まで再生されたらアイコンを戻す
-    audio.addEventListener('ended', () => {
-        playIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
-        progressBar.style.width = '0%';
-    });
+    function updateUI() {
+        const current = formatTime(audio.currentTime);
+        const duration = formatTime(audio.duration || 0);
+        timeDisplay.innerText = `${current} / ${duration}`;
+        const percent = (audio.currentTime / (audio.duration || 1)) * 100;
+        progressBar.style.width = `${percent}%`;
+    }
+
+    // ★ スライド（ドラッグ）操作の実装 ★
+    const startDrag = (e) => {
+        isDragging = true;
+        progressBar.style.transition = 'none'; // 操作中はアニメーションをオフにして追従性アップ
+        dragUpdate(e);
+    };
+
+    const dragUpdate = (e) => {
+        if (!isDragging) return;
+        const rect = progressContainer.querySelector('.progress-inner').getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let x = clientX - rect.left;
+        x = Math.max(0, Math.min(x, rect.width)); // 範囲外に行かないよう固定
+        const ratio = x / rect.width;
+        
+        progressBar.style.width = `${ratio * 100}%`;
+        if (audio.duration) {
+            audio.currentTime = ratio * audio.duration;
+        }
+    };
+
+    const stopDrag = () => {
+        if (isDragging) {
+            isDragging = false;
+            progressBar.style.transition = 'width 0.1s linear';
+        }
+    };
+
+    // マウス操作
+    progressContainer.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', dragUpdate);
+    window.addEventListener('mouseup', stopDrag);
+
+    // タッチ操作（モバイル）
+    progressContainer.addEventListener('touchstart', (e) => {
+        startDrag(e);
+        // スクロールを防止したい場合は e.preventDefault();
+    }, { passive: false });
+    window.addEventListener('touchmove', dragUpdate, { passive: false });
+    window.addEventListener('touchend', stopDrag);
+
+    audio.addEventListener('loadedmetadata', updateUI);
 });
 
-// 自分以外の音声をすべて停止し、アイコンを再生マークに戻す関数
 function stopAllOtherAudio(currentAudio) {
-    document.querySelectorAll('.audio-player').forEach(otherPlayer => {
-        const otherAudio = otherPlayer.querySelector('.js-audio');
-        const otherIcon = otherPlayer.querySelector('.js-play-btn i');
-        
+    document.querySelectorAll('.js-audio').forEach(otherAudio => {
         if (otherAudio !== currentAudio) {
             otherAudio.pause();
-            otherIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+            const icon = otherAudio.closest('.audio-player').querySelector('.js-play-btn i');
+            icon.classList.replace('bi-pause-fill', 'bi-play-fill');
         }
     });
 }
