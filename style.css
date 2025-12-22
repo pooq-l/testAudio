@@ -2,7 +2,7 @@ body { background-color: #f0f2f5; }
 
 .btn-play {
     background: none; border: none; padding: 0;
-    color: #24d366; font-size: 2.5rem;
+    color: #baa59e; font-size: 2.5rem;
     display: flex; align-items: center;
 }
 
